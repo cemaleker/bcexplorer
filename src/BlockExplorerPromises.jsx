@@ -62,6 +62,7 @@ LatestBlock = function () {
   })
 
   LatestBlock.pLatestBlock = p
+  p.finally ( () => LatestBlock.pLatestBlock = null )
 
   return p
 }

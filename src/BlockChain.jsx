@@ -1,11 +1,12 @@
-var React = require('react')
-var Morearty = require('morearty')
-var ReactDOM = require('react-dom')
+const React = require('react')
+const Morearty = require('morearty')
+const ReactDOM = require('react-dom')
 
-
-var { range, map } = require('underscore')
+const { range, map } = require('underscore')
 
 const { List, ListDivider, ListItem } = require('material-ui/lib/lists')
+
+const Promises = require('./BlockExplorerPromises.jsx')
 
 var Block = React.createClass({
   displayName: 'Block',
@@ -26,6 +27,26 @@ var Block = React.createClass({
 var BlockChain = React.createClass({
   displayName: 'BlockChain',
   mixins: [Morearty.Mixin],
+
+  componentDidMount: function () {
+    const binding = this.getDefaultBinding()
+
+    Promises.LatestBlock()
+    .catch ( function (e) { console.log(e) /*@TODO: Show error state */ })
+    .then( function (idx) {
+      const P = 3
+      const blocksBinding = binding.sub('blocks')
+      blocksBinding.update( (blocks) => {
+        console.log(blocks)
+        return blocks.add(
+          map(
+            range ( idx, idx - P, -1),
+            Promises.Block
+          )
+        ).sort( (_0, _1) => _0.block_index < _1.block_index )
+      })
+    })
+  },
 
   componentDidUpdate: function() {
     console.log(ReactDOM.findDOMNode(this)) 

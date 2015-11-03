@@ -22,47 +22,6 @@ var App = React.createClass({
   mixins: [Morearty.Mixin],
 
   componentDidMount: function() {
-
-    var B = this.getDefaultBinding()
-
-    /** Fetch initial data */ 
-
-    /** Hint:
-     * p: a promised value
-     * pf: a promised value factory :)
-     */
-
-    Promises.LatestBlock()
-    .catch ( function (e) { console.log(e) })
-    .then( function (idx) {
-      /** Create 5 promised blocks with provided idx */
-      var all = range (idx, idx - 5, -1)
-      all = map (all, Promises.Block)
-
-      /** A consume method to save all recieved values to binding */
-      function consume(p, b) {
-        var b = this
-
-        return p
-        .catch(function (e) { 
-          console.log("Unable to fetch block", e)
-        })
-        .then(function (v) {
-          b.update(function(blocks) {
-            blocks = blocks.set(v.block_index, v).sort(function (_0, _1) { return _0.block_index < _1.block_index })
-            return blocks
-          })
-        })
-        .done()
-      }
-      map(all, consume, B.sub('BlockChain.blocks'))
-
-      return Q.all(all)
-    })
-    .then(function (v) { console.log(v); console.log(B.get('blocks.block_index')) })
-    .done()
-
-    /** Get some initial data */
   },
 
   render: function() {
