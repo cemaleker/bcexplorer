@@ -1,6 +1,7 @@
 {
   "name": "bcexplorer",
   "version": "0.0.1",
+  "repository": "https://github.com/cemaleker/bcexplorer",
   "description": "A blockchain explorer with ReactJS and blockchain.info API",
   "main": "index.js",
   "scripts": {
@@ -22,7 +23,7 @@
     "reactjs"
   ],
   "author": "Cemal Eker hello@cemaleker.com",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.0.14",
     "babel-core": "^5.8.33",
