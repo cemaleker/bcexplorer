@@ -4,7 +4,7 @@ bcexplorer
 A blockchain explorer with ReactJS and blockchain.info API
 
 
-Contrubuting
+Contributing
 ------------
 
 This is still only too basic but if you wanna play with it
