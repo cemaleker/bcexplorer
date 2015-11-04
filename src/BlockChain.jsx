@@ -1,8 +1,10 @@
 const React = require('react')
 const Morearty = require('morearty')
 const ReactDOM = require('react-dom')
+const Q = require('q')
+const Immutable = require('immutable')
 
-const { range, map } = require('underscore')
+const { range, map, reduce } = require('underscore')
 
 const { List, ListDivider, ListItem } = require('material-ui/lib/lists')
 
@@ -12,13 +14,25 @@ var Block = React.createClass({
   displayName: 'Block',
   mixins: [Morearty.Mixin],
 
+  componentDidMount: function() {
+    let binding = this.getDefaultBinding()
+    let block = binding.get()
+
+  },
+
+  componentDidUpdate: function() {
+    let binding = this.getDefaultBinding()
+    let block = binding.get()
+
+  },
+
   render: function() {
-    var binding = this.getDefaultBinding()
-    var block = binding.get()
+    let binding = this.getDefaultBinding()
+    let block = binding.get()
 
     return (
       <ListItem>
-        {block['block_index']}
+        {block.get('block_index')}
       </ListItem>
     )
   }
@@ -30,44 +44,54 @@ var BlockChain = React.createClass({
 
   componentDidMount: function () {
     const binding = this.getDefaultBinding()
+    const blocksBinding = binding.sub('blocks')
 
-    Promises.LatestBlock()
-    .catch ( function (e) { console.log(e) /*@TODO: Show error state */ })
-    .then( function (idx) {
-      const P = 3
-      const blocksBinding = binding.sub('blocks')
-      blocksBinding.update( (blocks) => {
-        console.log(blocks)
-        return blocks.add(
-          map(
-            range ( idx, idx - P, -1),
-            Promises.Block
-          )
-        ).sort( (_0, _1) => _0.block_index < _1.block_index )
+    function loadAndShowBlocks(idxs) {
+      return Q.all(map(idxs, Promises.Block))
+      .then( (blocks) => {
+        blocks = map(blocks, Immutable.Map)
+        return blocksBinding.update( (b) => {
+          return b.concat(blocks)
+        })
       })
-    })
+    }
+
+    let  p = Promises
+    .LatestBlock()
+    .then( (idx) => {
+      return loadAndShowBlocks(range(idx, idx -5, -1)) 
+    }) 
+    .catch ( function (e) { console.log(e) /*@TODO: Show error state */ })
+
+    let f = () => {
+      let lastIdx = blocksBinding.get().last().get('block_index')
+      lastIdx -= 1
+      return loadAndShowBlocks(range(lastIdx, lastIdx -5, -1))
+    }
+
+    let l = p.then(f)
+    l = l.then(f)
+
   },
 
   componentDidUpdate: function() {
-    console.log(ReactDOM.findDOMNode(this)) 
   },
 
   render: function() {
-    var binding = this.getDefaultBinding()
-    var blocksBinding = binding.sub('blocks')
-    var blocks = binding.get('blocks')
+    let binding = this.getDefaultBinding()
+    let blocksBinding = binding.sub('blocks')
+    let blocks = binding.get('blocks')
 
-    var renderBlock = function(block, index) { 
-      var binding = blocksBinding.sub(index) 
-      var block = binding.get()
+    let renderBlock = function(value, idx) { 
+      let binding = blocksBinding.sub(idx) 
       return (
-        <Block binding={binding} key={block['block_index']} />
+        <Block binding={binding} key={value.get('block_index')} />
+
       )
     }
 
-
     return (
-      <List>{blocks.map(renderBlock).toArray()}</List>
+      <List>{ blocks.map(renderBlock) }</List>
     )
   }
 })

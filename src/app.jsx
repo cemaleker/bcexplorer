@@ -1,3 +1,5 @@
+require('babel-polyfill')
+
 var React = require('react')
 var ReactDOM = require('react-dom')
 var Morearty = require('morearty')
@@ -41,7 +43,7 @@ var Context = Morearty.createContext({
     /**
      * Loaded blocks
      **/
-      blocks: Immutable.OrderedMap()
+      blocks: Immutable.List()
     }
   }
 })
